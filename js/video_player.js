@@ -1,15 +1,26 @@
 class VideoPlayerBasic {
+	/**
+	 * @description Function all constructor properties put together
+	 * @param {Object} settings - custom settings
+	 */
 	constructor(settings) {
 		this._settings = Object.assign(VideoPlayerBasic.getDefaultSettings(), settings);
 		this._videoContainer = null;
 		this._video = null;
 		this._toggleBtn = null;
 		this._progress = null;
+		this._progressContainer = null;
+		this._elVolume = null;
+		this._elPlaybackRate = null;
+		this._skipBtns = null;
 		this._mouseDown = false;
 		this._timerId = null;
 		this._timeout = 500;
 	}
 
+	/**
+	 * @description Initialization of necessary modules
+	 */
 	init() {
 		// Проверить переданы ли видео и контейнер
 		if (!this._settings.videoUrl) return console.error("Передайте адрес видео");
@@ -23,40 +34,75 @@ class VideoPlayerBasic {
 		this._setEvents();
 	}
 
+	/**
+	 * @description Function to start and pause video
+	 */
 	toggle() {
 		const method = this._video.paused ? 'play' : 'pause';
 		this._toggleBtn.textContent = this._video.paused ? '❚ ❚' : '►';
 		this._video[method]();
 	}
 
+	/**
+	 * @description Function displays the progress of video playback
+	 * @private
+	 */
 	_handlerProgress() {
 		const percent = (this._video.currentTime / this._video.duration) * 100;
 		this._progress.style.flexBasis = `${ percent }%`;
 	}
 
+	/**
+	 * @description Video rewind function
+	 * @param e - event
+	 * @private
+	 */
 	_scrub(e) {
 		this._video.currentTime = (e.offsetX / this._progressContainer.offsetWidth) * this._video.duration;
 	}
 
+	/**
+	 * @description Function changes volume values
+	 * @private
+	 */
 	_handlerVolume() {
 		this._video.volume = this._elVolume.value;
 	}
 
+	/**
+	 * @description Function changes the speed of the video
+	 * @private
+	 */
 	_handlerPlaybackRate() {
 		this._video.playbackRate = this._elPlaybackRate.value;
 	}
 
+	/**
+	 * @description Function rewinds video
+	 * @param type - rewind video type either forward or backward
+	 * @private
+	 */
 	_skip(type) {
 		this._video.currentTime = type > 0 ? this._video.currentTime + Math.abs(this._settings.skipNext) : this._video.currentTime - Math.abs(this._settings.skipPrev);
 	}
 
+	/**
+	 * @description This function determines in which part of the video a click has occurred.
+	 * @param e - event
+	 * @private
+	 */
 	_handlerVideo(e) {
 		this._video.videoWidth / 2 < e.offsetX ? this._skip(1) : this._skip(-1);
 	}
 
+	/**
+	 * @description The function recognizes single click or double
+	 * @param e - event
+	 * @private
+	 */
 	_defineClick(e) {
 		if (e.detail === 1) {
-			this._timerId = setTimeout( () => {
+			this._timerId = setTimeout(() => {
 				this.toggle();
 			}, this._timeout || 300);
 		} else if (e.detail === 2) {
@@ -65,6 +111,10 @@ class VideoPlayerBasic {
 		}
 	}
 
+	/**
+	 * @description Function finds all controls elements
+	 * @private
+	 */
 	_setElements() {
 		this._videoContainer = document.querySelector(this._settings.videoPlayerContainer);
 		this._video = this._videoContainer.querySelector('video');
@@ -76,6 +126,10 @@ class VideoPlayerBasic {
 		this._skipBtns = this._videoContainer.querySelectorAll('[data-skip]');
 	}
 
+	/**
+	 * @description The function sets events on elements
+	 * @private
+	 */
 	_setEvents() {
 		this._video.addEventListener('click', (e) => this._defineClick(e));
 		this._video.addEventListener('timeupdate', () => this._handlerProgress());
@@ -100,12 +154,21 @@ class VideoPlayerBasic {
 		this._skipBtns.forEach((item) => item.addEventListener('click', (e) => this._skip(e.target.dataset.skip)));
 	}
 
+	/**
+	 * @description The function adds the template to the markup
+	 * @private
+	 */
 	_addTemplate() {
 		const template = this._createVideoTemplate();
 		const container = document.querySelector(this._settings.videoPlayerContainer);
 		container ? container.insertAdjacentHTML("afterbegin", template) : console.error('контейнер не найден');
 	}
 
+	/**
+	 * @description The function creates a markup with the filled data and returns it
+	 * @return {string} - returns markup
+	 * @private
+	 */
 	_createVideoTemplate() {
 		return `
 			<div class="player">
@@ -123,6 +186,10 @@ class VideoPlayerBasic {
 			</div>`;
 	}
 
+	/**
+	 * @description Default settings list
+	 * @return {{videoUrl: string, videoPlayerContainer: string, skipPrev: number, skipNext: number, volume: number, playbackRate: number}} - returns default settings
+	 */
 	static getDefaultSettings() {
 		/**
 		 * Список настроек
