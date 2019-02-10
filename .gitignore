@@ -1,0 +1,14 @@
+*\#
+*~
+*.\#*
+*.swp
+.idea/*
+.idea/
+.poll_stamp
+*.DS_Store
+log
+.sass-cache/*
+.sass-cache/
+dist/
+node_modules/
+temp/
