@@ -10,8 +10,7 @@ class VideoPlayerBasic {
 		this._toggleBtn = null;
 		this._progress = null;
 		this._progressContainer = null;
-		this._elVolume = null;
-		this._elPlaybackRate = null;
+		this._ranges = null;
 		this._skipBtns = null;
 		this._mouseDown = false;
 		this._timerId = null;
@@ -62,19 +61,12 @@ class VideoPlayerBasic {
 	}
 
 	/**
-	 * @description Function changes volume values
+	 * @description Function changes value of range
+	 * @param e - event
 	 * @private
 	 */
-	_handlerVolume() {
-		this._video.volume = this._elVolume.value;
-	}
-
-	/**
-	 * @description Function changes the speed of the video
-	 * @private
-	 */
-	_handlerPlaybackRate() {
-		this._video.playbackRate = this._elPlaybackRate.value;
+	_rangeHangler(e) {
+		this._video[e.target.name] = e.target.value;
 	}
 
 	/**
@@ -121,8 +113,7 @@ class VideoPlayerBasic {
 		this._toggleBtn = this._videoContainer.querySelector('.toggle');
 		this._progress = this._videoContainer.querySelector('.progress__filled');
 		this._progressContainer = this._videoContainer.querySelector('.progress');
-		this._elVolume = this._videoContainer.querySelector('input[type="range"][name="volume"]');
-		this._elPlaybackRate = this._videoContainer.querySelector('input[type="range"][name="playbackRate"]');
+		this._ranges = this._videoContainer.querySelectorAll('input[type="range"]');
 		this._skipBtns = this._videoContainer.querySelectorAll('[data-skip]');
 	}
 
@@ -141,15 +132,7 @@ class VideoPlayerBasic {
 		this._progressContainer.addEventListener('mousedown', () => this._mouseDown = true);
 		this._progressContainer.addEventListener('mouseup', () => this._mouseDown = false);
 
-		this._elVolume.addEventListener('click', () => this._handlerVolume());
-		this._elVolume.addEventListener('mousemove', () => this._mouseDown && this._handlerVolume());
-		this._elVolume.addEventListener('mousedown', () => this._mouseDown = true);
-		this._elVolume.addEventListener('mouseup', () => this._mouseDown = false);
-
-		this._elPlaybackRate.addEventListener('click', () => this._handlerPlaybackRate());
-		this._elPlaybackRate.addEventListener('mousemove', () => this._mouseDown && this._handlerPlaybackRate());
-		this._elPlaybackRate.addEventListener('mousedown', () => this._mouseDown = true);
-		this._elPlaybackRate.addEventListener('mouseup', () => this._mouseDown = false);
+		this._ranges.forEach((item) => item.addEventListener('input', (e) => this._rangeHangler(e)));
 
 		this._skipBtns.forEach((item) => item.addEventListener('click', (e) => this._skip(e.target.dataset.skip)));
 	}
